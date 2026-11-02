@@ -1,0 +1,6 @@
+{
+  "name": "TaskFlow - Gestão Ágil & Bullet Journal",
+  "description": "Sistema escalável de gerenciamento de tarefas integrando metodologias ágeis (Kanban, Metas em cascata, Épicos) e Bullet Journal com terminal CLI integrado para agentes e humanos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
