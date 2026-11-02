@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { TaskFlowProvider, useTaskFlow } from './context/TaskFlowContext';
+import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
 import { FilterBar } from './components/layout/FilterBar';
 import { KanbanBoard } from './components/kanban/KanbanBoard';
@@ -19,7 +21,23 @@ import { EpicModal } from './components/modals/EpicModal';
 import { EmailModal } from './components/notifications/EmailModal';
 
 const AppContent: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
   const { activeView, modalState, isCliOpen } = useTaskFlow();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-gray-400 font-mono">Carregando TaskFlow...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthScreen />;
+  }
 
   const showFilterBar = ['kanban', 'list', 'calendar'].includes(activeView);
 
@@ -61,8 +79,10 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <TaskFlowProvider>
-      <AppContent />
-    </TaskFlowProvider>
+    <AuthProvider>
+      <TaskFlowProvider>
+        <AppContent />
+      </TaskFlowProvider>
+    </AuthProvider>
   );
 }

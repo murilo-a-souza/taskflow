@@ -11,11 +11,14 @@ import {
   Search,
   Sparkles,
   RotateCcw,
+  LogOut,
 } from 'lucide-react';
 import { useTaskFlow } from '../../context/TaskFlowContext';
+import { useAuth } from '../../context/AuthContext';
 import { ActiveView } from '../../types';
 
 export const Header: React.FC = () => {
+  const { user, logout } = useAuth();
   const {
     activeView,
     setActiveView,
@@ -132,6 +135,32 @@ export const Header: React.FC = () => {
             >
               <RotateCcw className="w-4 h-4" />
             </button>
+
+            {/* User Profile & Logout */}
+            {user && (
+              <div className="flex items-center pl-2 ml-1 border-l border-[#30363d] gap-2">
+                <div
+                  className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm"
+                  title={`${user.name} (${user.email})`}
+                >
+                  {user.name.charAt(0)}
+                </div>
+                <span className="hidden xl:inline text-xs font-medium text-gray-300 max-w-[120px] truncate" title={user.name}>
+                  {user.name}
+                </span>
+                <button
+                  onClick={() => {
+                    if (window.confirm('Deseja realmente sair da sua conta?')) {
+                      logout();
+                    }
+                  }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-[#21262d] transition-colors"
+                  title="Sair da conta (Logout)"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

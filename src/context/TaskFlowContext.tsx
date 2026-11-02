@@ -20,6 +20,8 @@ import {
 } from '../services/mockData';
 import { executeCliCommand } from '../services/cliParser';
 import { generateDailyDigestHtml, generateEventReminderHtml } from '../services/emailService';
+import { api } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface TaskFlowContextType {
   // Data
@@ -109,6 +111,8 @@ const LOCAL_STORAGE_KEYS = {
 };
 
 export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, token } = useAuth();
+
   // Load state from localStorage or initial mock data
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
@@ -216,6 +220,28 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.EMAIL_LOGS, JSON.stringify(emailLogs));
   }, [emailLogs]);
+
+  // Sync with Back-End API on startup and when user changes
+  useEffect(() => {
+    let isMounted = true;
+    api.getBootstrap()
+      .then((data) => {
+        if (!isMounted) return;
+        if (Array.isArray(data.tasks)) setTasks(data.tasks);
+        if (Array.isArray(data.goals)) setRawGoals(data.goals);
+        if (Array.isArray(data.epics)) setEpics(data.epics);
+        if (Array.isArray(data.tags)) setTags(data.tags);
+        if (data.emailConfig) setEmailConfig(data.emailConfig);
+        if (Array.isArray(data.emailLogs)) setEmailLogs(data.emailLogs);
+      })
+      .catch((err) => {
+        console.warn('[TaskFlow] Back-end offline ou indisponível, utilizando cache local:', err.message);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token, user?.id]);
 
   // Keyboard shortcut to toggle terminal (Ctrl + ~ or Ctrl + ')
   useEffect(() => {
@@ -364,14 +390,23 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const createTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     const nextId = `TF-${Math.floor(100 + Math.random() * 900)}`;
     const now = new Date().toISOString();
-    const newTask: Task = {
+    const optimisticTask: Task = {
       ...taskData,
       id: nextId,
       createdAt: now,
       updatedAt: now,
     };
-    setTasks((prev) => [newTask, ...prev]);
-    return newTask;
+    setTasks((prev) => [optimisticTask, ...prev]);
+
+    api.createTask(taskData)
+      .then((serverTask) => {
+        setTasks((prev) => prev.map((t) => (t.id === optimisticTask.id ? serverTask : t)));
+      })
+      .catch((err) => {
+        console.warn('[API] Falha ao sincronizar criação da tarefa no back-end:', err);
+      });
+
+    return optimisticTask;
   }, []);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
@@ -387,10 +422,16 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return t;
       })
     );
+    api.updateTask(id, updates).catch((err) => {
+      console.warn('[API] Falha ao sincronizar atualização de tarefa:', err);
+    });
   }, []);
 
   const deleteTask = useCallback((id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    api.deleteTask(id).catch((err) => {
+      console.warn('[API] Falha ao sincronizar exclusão de tarefa:', err);
+    });
   }, []);
 
   const moveTaskStatus = useCallback((id: string, newStatus: TaskStatus) => {
@@ -407,6 +448,9 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return t;
       })
     );
+    api.updateTaskStatus(id, newStatus).catch((err) => {
+      console.warn('[API] Falha ao sincronizar novo status:', err);
+    });
   }, []);
 
   const batchUpdateTasks = useCallback((ids: string[], updates: Partial<Task>) => {
@@ -418,48 +462,81 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return t;
       })
     );
+    api.batchUpdateTasks(ids, updates).catch((err) => {
+      console.warn('[API] Falha ao sincronizar atualização em lote:', err);
+    });
   }, []);
 
   const batchDeleteTasks = useCallback((ids: string[]) => {
     setTasks((prev) => prev.filter((t) => !ids.includes(t.id)));
+    api.batchDeleteTasks(ids).catch((err) => {
+      console.warn('[API] Falha ao sincronizar exclusão em lote:', err);
+    });
   }, []);
 
   // Goal CRUD
   const createGoal = useCallback((goalData: Omit<Goal, 'id' | 'createdAt'>) => {
     const nextId = `goal-${Date.now().toString().slice(-4)}`;
-    const newGoal: Goal = {
+    const optimisticGoal: Goal = {
       ...goalData,
       id: nextId,
       createdAt: new Date().toISOString(),
     };
-    setRawGoals((prev) => [...prev, newGoal]);
-    return newGoal;
+    setRawGoals((prev) => [...prev, optimisticGoal]);
+
+    api.createGoal(goalData)
+      .then((serverGoal) => {
+        setRawGoals((prev) => prev.map((g) => (g.id === optimisticGoal.id ? serverGoal : g)));
+      })
+      .catch((err) => {
+        console.warn('[API] Falha ao sincronizar meta com o back-end:', err);
+      });
+
+    return optimisticGoal;
   }, []);
 
   const updateGoal = useCallback((id: string, updates: Partial<Goal>) => {
     setRawGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...updates } : g)));
+    api.updateGoal(id, updates).catch((err) => {
+      console.warn('[API] Falha ao sincronizar meta:', err);
+    });
   }, []);
 
   const deleteGoal = useCallback((id: string) => {
     setRawGoals((prev) => prev.filter((g) => g.id !== id));
     // Unlink tasks
     setTasks((prev) => prev.map((t) => (t.goalId === id ? { ...t, goalId: undefined } : t)));
+    api.deleteGoal(id).catch((err) => {
+      console.warn('[API] Falha ao sincronizar exclusão de meta:', err);
+    });
   }, []);
 
   // Epic CRUD
   const createEpic = useCallback((epicData: Omit<Epic, 'id' | 'createdAt'>) => {
     const nextId = `epic-${Date.now().toString().slice(-4)}`;
-    const newEpic: Epic = {
+    const optimisticEpic: Epic = {
       ...epicData,
       id: nextId,
       createdAt: new Date().toISOString(),
     };
-    setEpics((prev) => [...prev, newEpic]);
-    return newEpic;
+    setEpics((prev) => [...prev, optimisticEpic]);
+
+    api.createEpic(epicData)
+      .then((serverEpic) => {
+        setEpics((prev) => prev.map((e) => (e.id === optimisticEpic.id ? serverEpic : e)));
+      })
+      .catch((err) => {
+        console.warn('[API] Falha ao sincronizar épico com o back-end:', err);
+      });
+
+    return optimisticEpic;
   }, []);
 
   const updateEpic = useCallback((id: string, updates: Partial<Epic>) => {
     setEpics((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+    api.updateEpic(id, updates).catch((err) => {
+      console.warn('[API] Falha ao sincronizar atualização de épico:', err);
+    });
   }, []);
 
   const deleteEpic = useCallback((id: string) => {
@@ -467,24 +544,42 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Unlink tasks and goals
     setTasks((prev) => prev.map((t) => (t.epicId === id ? { ...t, epicId: undefined } : t)));
     setRawGoals((prev) => prev.map((g) => (g.epicId === id ? { ...g, epicId: undefined } : g)));
+    api.deleteEpic(id).catch((err) => {
+      console.warn('[API] Falha ao sincronizar exclusão de épico:', err);
+    });
   }, []);
 
   // Tag CRUD
   const createTag = useCallback((name: string, color: string) => {
     const nextId = `tag-${Date.now().toString().slice(-4)}`;
-    const newTag: Tag = { id: nextId, name, color };
-    setTags((prev) => [...prev, newTag]);
-    return newTag;
+    const optimisticTag: Tag = { id: nextId, name, color };
+    setTags((prev) => [...prev, optimisticTag]);
+
+    api.createTag(name, color)
+      .then((serverTag) => {
+        setTags((prev) => prev.map((t) => (t.id === optimisticTag.id ? serverTag : t)));
+      })
+      .catch((err) => {
+        console.warn('[API] Falha ao sincronizar tag:', err);
+      });
+
+    return optimisticTag;
   }, []);
 
   const deleteTag = useCallback((id: string) => {
     setTags((prev) => prev.filter((t) => t.id !== id));
     setTasks((prev) => prev.map((t) => ({ ...t, tags: t.tags.filter((tagId) => tagId !== id) })));
+    api.deleteTag(id).catch((err) => {
+      console.warn('[API] Falha ao sincronizar exclusão de tag:', err);
+    });
   }, []);
 
   // Email Config
   const updateEmailConfig = useCallback((cfg: Partial<EmailNotificationConfig>) => {
     setEmailConfig((prev) => ({ ...prev, ...cfg }));
+    api.updateEmailConfig(cfg).catch((err) => {
+      console.warn('[API] Falha ao atualizar configuração de e-mail:', err);
+    });
   }, []);
 
   // Trigger Daily Digest
@@ -508,7 +603,7 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       epics
     );
 
-    const log: EmailLog = {
+    const optimisticLog: EmailLog = {
       id: `log-${Date.now()}`,
       type: 'daily_digest',
       recipient: emailConfig.targetEmail,
@@ -519,8 +614,18 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       status: 'simulado',
     };
 
-    setEmailLogs((prev) => [log, ...prev]);
-    return log;
+    setEmailLogs((prev) => [optimisticLog, ...prev]);
+
+    // Dispatch via Back-End
+    api.triggerDailyDigest(emailConfig.targetEmail)
+      .then((serverLog) => {
+        setEmailLogs((prev) => prev.map((l) => (l.id === optimisticLog.id ? serverLog : l)));
+      })
+      .catch((err) => {
+        console.warn('[API] Falha ao disparar digest via back-end:', err);
+      });
+
+    return optimisticLog;
   }, [tasks, goals, epics, emailConfig]);
 
   // Run CLI Command
@@ -531,15 +636,21 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Handle executed side effect action
       if (result.action) {
         if (result.action.type === 'create_task') {
-          setTasks((prev) => [result.action!.payload, ...prev]);
+          const payload = result.action.payload;
+          setTasks((prev) => [payload, ...prev]);
+          api.createTask(payload).catch((err) => console.warn('[CLI] Falha ao sincronizar criação:', err));
         } else if (result.action.type === 'update_task') {
           const updated = result.action.payload;
           setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+          api.updateTask(updated.id, updated).catch((err) => console.warn('[CLI] Falha ao sincronizar atualização:', err));
         } else if (result.action.type === 'delete_task') {
           const { id } = result.action.payload;
           setTasks((prev) => prev.filter((t) => t.id !== id));
+          api.deleteTask(id).catch((err) => console.warn('[CLI] Falha ao sincronizar exclusão:', err));
         } else if (result.action.type === 'create_goal') {
-          setRawGoals((prev) => [...prev, result.action!.payload]);
+          const payload = result.action.payload;
+          setRawGoals((prev) => [...prev, payload]);
+          api.createGoal(payload).catch((err) => console.warn('[CLI] Falha ao sincronizar meta:', err));
         } else if (result.action.type === 'trigger_digest') {
           triggerDailyDigestNow();
         } else if (result.action.type === 'clear') {

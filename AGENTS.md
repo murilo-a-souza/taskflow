@@ -38,9 +38,13 @@ Proporcionar uma interface de alta produtividade e uma API/CLI estruturada que p
   * `epics/`: Gestão das áreas mestras de vida e objetivos atrelados.
   * `terminal/`: Drawer embutido estilo VS Code com parser dedicado.
   * `notifications/`: Central de preferências de e-mail e preview do briefing HTML.
+* **Camada Back-End**: Node.js + Express + TypeScript (`server/index.ts`) com rotas RESTful para autenticação, tarefas, metas, épicos, tags e e-mails.
+* **Autenticação & Multi-Tenant**: Gestão de sessões via JWT nativo com hash seguro de senhas (`crypto.scryptSync` + salt) e isolamento estrito de dados por `userId`.
+* **Motor de Notificações**: Serviço com suporte ao Resend e agendador contínuo em background (`server/services/scheduler.ts`) para resumo matinal às 08:00 e alertas 30min antes de eventos.
+* **Integração de IA**: Compatibilidade com **Google AI Studio** e Gemini API (`@google/genai`) para planejamento estratégico autônomo.
 * **Estado Global e Persistência**:
-  * `src/context/TaskFlowContext.tsx`: Store central com persistência em `localStorage` e recálculo reativo em tempo real do progresso em cascata.
-  * Arquitetura desacoplada para facilitar a posterior conexão com o Firebase Firestore / Cloud Functions.
+  * `src/context/TaskFlowContext.tsx` e `src/context/AuthContext.tsx`: Store central com sincronização direta via `src/services/api.ts` e cache resiliente em `localStorage`.
+  * Banco de dados persistente atômico em `server/data/taskflow-db.json` com auto-seeding.
 * **Tokens de Estilo Únicos**:
   * Centralizados em `src/index.css` (`.tf-card`, `.tf-input`, `.tf-btn-primary`, `.tf-btn-secondary`, `.tf-badge`, `.tf-font-mono`).
 
@@ -89,6 +93,13 @@ Proporcionar uma interface de alta produtividade e uma API/CLI estruturada que p
   * Resumo matinal consolidando: (1) Vitórias/concluídas de ontem, (2) Eventos de hoje com horário, (3) Fluxo prioritário de hoje, (4) Status das metas semanais ativas.
   * Alerta com antecedência de 30 minutos para eventos com hora marcada.
   * Visualizador e gerador de templates HTML renderizados no modal.
+* **RF10 - Autenticação JWT e Multi-Tenant**:
+  * Cadastro e login de usuários com hash criptográfico `scrypt` e token JWT (7 dias).
+  * Isolamento completo de dados por `userId` com auto-seeding no primeiro login.
+  * Modo demonstração rápida ("Continuar como Visitante").
+* **RF11 - Deploy em Nuvem e Containerização**:
+  * Build multi-stage via `Dockerfile` servindo API Express e estáticos Vite no mesmo processo.
+  * Blueprint `render.yaml` pronto para deploy contínuo no Render.com com scheduler ativo.
 
 ---
 
@@ -232,11 +243,17 @@ O sistema é considerado aceito e pronto para homologação quando:
 
 ---
 
-## 9. Próximos Passos (Evolução V2 & Backend)
+## 9. Status de Entrega & Próximos Passos (V2 & V3)
 
-1. **Persistência com Firebase Firestore**:
-   * Substituir o adaptador de `localStorage` em `TaskFlowContext` por listeners `onSnapshot` do Firestore para sincronização multi-dispositivo em tempo real.
-2. **Disparo Real de E-mails**:
-   * Conectar o serviço de e-mail a um endpoint serverless `/api/digest` usando Resend ou SendGrid com chave de API segura injetada no ambiente.
-3. **Agente de IA Autônomo com Gemini API**:
-   * Adicionar comando `ai plan --prompt="..."` no CLI capaz de decompor anotações livres em épicos, metas e tarefas estruturadas automaticamente.
+### Entregas Realizadas na V2:
+1. **[Concluído] Camada Back-End Completa**: Servidor Express em TypeScript com rotas REST (`/api/tasks`, `/api/goals`, `/api/epics`, `/api/tags`, `/api/bootstrap`, `/api/email`).
+2. **[Concluído] Autenticação JWT e Multi-Tenant**: Registro, login, verificação de sessão e isolamento total de dados por usuário.
+3. **[Concluído] Persistência Atômica**: Armazenamento em `server/data/taskflow-db.json` com auto-seeding e sincronização reativa com front-end.
+4. **[Concluído] Motor de E-mails & Scheduler**: Agendador contínuo em background (`scheduler.ts`) para resumo matinal às 08:00 e alertas 30min antes de eventos.
+5. **[Concluído] Prontidão para Deploy**: `Dockerfile` multi-stage e `render.yaml` para hospedagem com 1 clique.
+
+### Próximos Passos (Evolução V3):
+1. **Agente de IA Autônomo com Gemini API (`@google/genai`)**:
+   * Conectar a chave `GEMINI_API_KEY` do Google AI Studio a um comando CLI `ai plan --prompt="..."` capaz de decompor anotações livres em épicos, metas e tarefas estruturadas automaticamente.
+2. **Banco em Nuvem (Postgres / Firestore)**:
+   * Chave de ambiente `DATABASE_URL` para conectar a um banco gerenciado (Supabase/Neon/Firestore) quando em escala empresarial.

@@ -8,6 +8,7 @@ export type Recurrence = 'none' | 'daily' | 'weekdays' | 'weekly' | 'monthly';
 
 export interface Epic {
   id: string;
+  userId?: string;
   title: string;
   description: string;
   vision: string;
@@ -18,6 +19,7 @@ export interface Epic {
 
 export interface Goal {
   id: string;
+  userId?: string;
   title: string;
   description?: string;
   type: GoalType;
@@ -34,12 +36,14 @@ export interface Goal {
 
 export interface Tag {
   id: string;
+  userId?: string;
   name: string;
   color: string;
 }
 
 export interface Task {
   id: string;
+  userId?: string;
   title: string;
   description?: string;
   status: TaskStatus;
@@ -57,6 +61,7 @@ export interface Task {
 }
 
 export interface EmailNotificationConfig {
+  userId?: string;
   enabled: boolean;
   targetEmail: string;
   dailyDigestTime: string; // "08:00"
@@ -67,6 +72,7 @@ export interface EmailNotificationConfig {
 
 export interface EmailLog {
   id: string;
+  userId?: string;
   type: 'daily_digest' | 'event_reminder' | 'blocked_alert';
   recipient: string;
   subject: string;
@@ -87,3 +93,16 @@ export interface CliCommandOutput {
 }
 
 export type ActiveView = 'kanban' | 'list' | 'calendar' | 'goals' | 'epics';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
