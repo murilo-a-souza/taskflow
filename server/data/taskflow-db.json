@@ -1,0 +1,414 @@
+{
+  "tasks": [
+    {
+      "id": "TF-101",
+      "title": "Reunião de Alinhamento de Arquitetura & Roadmap",
+      "description": "Apresentar o modelo conceitual do TaskFlow, hierarquia de metas e parser de CLI para o time.",
+      "status": "planejando",
+      "priority": "alta",
+      "date": "2026-11-02",
+      "time": "14:30",
+      "recurrence": "none",
+      "tags": [
+        "tag-reuniao",
+        "tag-core"
+      ],
+      "epicId": "epic-eng",
+      "goalId": "goal-sem-1",
+      "createdAt": "2026-11-01T10:00:00Z",
+      "updatedAt": "2026-11-01T10:00:00Z"
+    },
+    {
+      "id": "TF-102",
+      "title": "Encontro de Jovens & Devocional Comunitário",
+      "description": "Facilitar discussão do capítulo sobre liderança servidora.",
+      "status": "planejando",
+      "priority": "media",
+      "date": "2026-11-02",
+      "time": "19:30",
+      "recurrence": "weekly",
+      "tags": [
+        "tag-habito"
+      ],
+      "epicId": "epic-igr",
+      "goalId": "goal-mes-4",
+      "createdAt": "2026-11-01T10:00:00Z",
+      "updatedAt": "2026-11-01T10:00:00Z"
+    },
+    {
+      "id": "TF-103",
+      "title": "Construir visualização Kanban com 5 colunas ágeis",
+      "description": "Implementar colunas: Planejando, Fazendo, Revisando, Concluído e Bloqueado, com contadores de WIP.",
+      "status": "fazendo",
+      "priority": "urgente",
+      "date": "2026-11-02",
+      "recurrence": "none",
+      "tags": [
+        "tag-core",
+        "tag-frontend"
+      ],
+      "epicId": "epic-eng",
+      "goalId": "goal-sem-1",
+      "createdAt": "2026-11-02T08:00:00Z",
+      "updatedAt": "2026-11-02T08:30:00Z"
+    },
+    {
+      "id": "TF-104",
+      "title": "Implementar parser do CLI integrado com suporte a --json",
+      "description": "Dar suporte aos comandos: task create, task list, task update, task delete, task find, goal list e help.",
+      "status": "fazendo",
+      "priority": "alta",
+      "date": "2026-11-02",
+      "recurrence": "none",
+      "tags": [
+        "tag-core"
+      ],
+      "epicId": "epic-eng",
+      "goalId": "goal-sem-1",
+      "createdAt": "2026-11-02T08:15:00Z",
+      "updatedAt": "2026-11-02T08:45:00Z"
+    },
+    {
+      "id": "TF-105",
+      "title": "Revisar cálculo cascata de metas (Semana -> Mês -> Ano)",
+      "description": "Garantir que a conclusão de tarefas recalcula o progresso da meta semanal e propaga para a mensal.",
+      "status": "revisando",
+      "priority": "media",
+      "date": "2026-11-02",
+      "recurrence": "none",
+      "tags": [
+        "tag-core"
+      ],
+      "epicId": "epic-eng",
+      "goalId": "goal-sem-1",
+      "createdAt": "2026-11-01T14:00:00Z",
+      "updatedAt": "2026-11-02T07:00:00Z"
+    },
+    {
+      "id": "TF-106",
+      "title": "Treino de corrida: 6km ritmo confortável (Zona 2)",
+      "description": "Corrida matinal focando em cadência constante e respiração nasal.",
+      "status": "concluido",
+      "priority": "media",
+      "date": "2026-11-02",
+      "recurrence": "none",
+      "tags": [
+        "tag-habito"
+      ],
+      "epicId": "epic-sau",
+      "goalId": "goal-sem-2",
+      "createdAt": "2026-11-02T06:00:00Z",
+      "updatedAt": "2026-11-02T07:15:00Z",
+      "completedAt": "2026-11-02T07:15:00Z"
+    },
+    {
+      "id": "TF-107",
+      "title": "Aporte mensal de investimentos na corretora",
+      "description": "Executar transferência bancária e compra de cotas de ETFs internacionais.",
+      "status": "concluido",
+      "priority": "alta",
+      "date": "2026-11-01",
+      "recurrence": "monthly",
+      "tags": [
+        "tag-habito"
+      ],
+      "epicId": "epic-fin",
+      "goalId": "goal-mes-1",
+      "createdAt": "2026-11-01T09:00:00Z",
+      "updatedAt": "2026-11-01T10:30:00Z",
+      "completedAt": "2026-11-01T10:30:00Z"
+    },
+    {
+      "id": "TF-108",
+      "title": "Configurar credenciais de gateway de e-mail de teste",
+      "description": "Bloqueado temporariamente aguardando confirmação do domínio de envio.",
+      "status": "bloqueado",
+      "priority": "baixa",
+      "date": "2026-11-02",
+      "recurrence": "none",
+      "tags": [
+        "tag-infra"
+      ],
+      "epicId": "epic-eng",
+      "blockedReason": "Aguardando validação dos registros SPF/DKIM no provedor DNS",
+      "createdAt": "2026-11-01T11:00:00Z",
+      "updatedAt": "2026-11-01T16:00:00Z"
+    },
+    {
+      "id": "TF-109",
+      "title": "Leitura de 30 páginas do livro \"Designing Data-Intensive Applications\"",
+      "description": "Capítulo 5: Replicação e Consistência Eventual.",
+      "status": "planejando",
+      "priority": "baixa",
+      "date": "2026-11-02",
+      "recurrence": "daily",
+      "tags": [
+        "tag-estudo",
+        "tag-habito"
+      ],
+      "epicId": "epic-est",
+      "createdAt": "2026-11-02T08:00:00Z",
+      "updatedAt": "2026-11-02T08:00:00Z"
+    }
+  ],
+  "goals": [
+    {
+      "id": "goal-anual-1",
+      "title": "Aportar R$ 60.000 e consolidar reserva estratégica",
+      "type": "annual",
+      "epicId": "epic-fin",
+      "period": "2026",
+      "status": "active",
+      "targetValue": 60000,
+      "currentValue": 48000,
+      "unit": "R$",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "goal-anual-2",
+      "title": "Construir e lançar 2 produtos escaláveis de ponta a ponta",
+      "type": "annual",
+      "epicId": "epic-eng",
+      "period": "2026",
+      "status": "active",
+      "targetValue": 2,
+      "currentValue": 1,
+      "unit": "produtos",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "goal-anual-3",
+      "title": "Completar 1.000 km corridos e correr meia maratona sub-1h50",
+      "type": "annual",
+      "epicId": "epic-sau",
+      "period": "2026",
+      "status": "active",
+      "targetValue": 1000,
+      "currentValue": 740,
+      "unit": "km",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "goal-anual-4",
+      "title": "Concluir a leitura completa dos 66 livros da Bíblia",
+      "type": "annual",
+      "epicId": "epic-igr",
+      "period": "2026",
+      "status": "active",
+      "targetValue": 66,
+      "currentValue": 54,
+      "unit": "livros",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "goal-mes-1",
+      "title": "Aporte de Novembro: R$ 5.000 em ativos globais",
+      "type": "monthly",
+      "parentId": "goal-anual-1",
+      "epicId": "epic-fin",
+      "period": "2026-11",
+      "status": "active",
+      "targetValue": 5000,
+      "currentValue": 5000,
+      "unit": "R$",
+      "createdAt": "2026-11-01"
+    },
+    {
+      "id": "goal-mes-2",
+      "title": "Finalizar Arquitetura do TaskFlow e motor de CLI",
+      "type": "monthly",
+      "parentId": "goal-anual-2",
+      "epicId": "epic-eng",
+      "period": "2026-11",
+      "status": "active",
+      "targetValue": 100,
+      "currentValue": 70,
+      "unit": "%",
+      "createdAt": "2026-11-01"
+    },
+    {
+      "id": "goal-mes-3",
+      "title": "Rodagem mensal de 90 km com 1 treino longo de 18km",
+      "type": "monthly",
+      "parentId": "goal-anual-3",
+      "epicId": "epic-sau",
+      "period": "2026-11",
+      "status": "active",
+      "targetValue": 90,
+      "currentValue": 24,
+      "unit": "km",
+      "createdAt": "2026-11-01"
+    },
+    {
+      "id": "goal-mes-4",
+      "title": "Ler cartas Paulinas e liderar 2 encontros de jovens",
+      "type": "monthly",
+      "parentId": "goal-anual-4",
+      "epicId": "epic-igr",
+      "period": "2026-11",
+      "status": "active",
+      "targetValue": 2,
+      "currentValue": 1,
+      "unit": "encontros",
+      "createdAt": "2026-11-01"
+    },
+    {
+      "id": "goal-sem-1",
+      "title": "Implementar UI modular e terminal integrado do TaskFlow",
+      "type": "weekly",
+      "parentId": "goal-mes-2",
+      "epicId": "epic-eng",
+      "period": "2026-W45",
+      "status": "active",
+      "targetValue": 100,
+      "currentValue": 60,
+      "unit": "%",
+      "createdAt": "2026-11-02"
+    },
+    {
+      "id": "goal-sem-2",
+      "title": "Fazer 3 treinos de corrida (6km, 8km e 14km no sábado)",
+      "type": "weekly",
+      "parentId": "goal-mes-3",
+      "epicId": "epic-sau",
+      "period": "2026-W45",
+      "status": "active",
+      "targetValue": 3,
+      "currentValue": 1,
+      "unit": "treinos",
+      "createdAt": "2026-11-02"
+    },
+    {
+      "id": "goal-sem-3",
+      "title": "Fechar planilha orçamentária do mês e validar reservas",
+      "type": "weekly",
+      "parentId": "goal-mes-1",
+      "epicId": "epic-fin",
+      "period": "2026-W45",
+      "status": "active",
+      "targetValue": 1,
+      "currentValue": 0,
+      "unit": "check",
+      "createdAt": "2026-11-02"
+    }
+  ],
+  "epics": [
+    {
+      "id": "epic-eng",
+      "title": "Carreira & Engenharia",
+      "description": "Arquitetura de sistemas distribuídos, produtos escaláveis e liderança técnica.",
+      "vision": "Alcançar nível Staff Engineer e criar aplicações com impacto direto em milhares de usuários.",
+      "color": "#3b82f6",
+      "iconName": "Cpu",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "epic-fin",
+      "title": "Finanças & Liberdade",
+      "description": "Gestão de fluxo de caixa, aportes mensais, investimentos e reserva de oportunidade.",
+      "vision": "Atingir independência financeira através de alocação de capital e patrimônio sólido.",
+      "color": "#10b981",
+      "iconName": "Coins",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "epic-sau",
+      "title": "Saúde & Performance",
+      "description": "Treinos de corrida, musculação, sono reparador e alimentação limpa.",
+      "vision": "Completar meia maratona (21km) mantendo excelente composição física e energia diária.",
+      "color": "#ef4444",
+      "iconName": "Activity",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "epic-igr",
+      "title": "Igreja & Espiritualidade",
+      "description": "Devocionais diários, serviço na comunidade e discipulado.",
+      "vision": "Crescer em fé, servir ativamente no ministério e apoiar o desenvolvimento de novos membros.",
+      "color": "#8b5cf6",
+      "iconName": "HeartHandshake",
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "epic-est",
+      "title": "Estudos & Pesquisa",
+      "description": "Leitura contínua de livros técnicos, papers de IA e filosofia ágil.",
+      "vision": "Ler 24 livros no ano e dominar padrões de IA autônoma e arquitetura serverless.",
+      "color": "#f59e0b",
+      "iconName": "BookOpen",
+      "createdAt": "2026-01-01"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag-core",
+      "name": "core",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "tag-frontend",
+      "name": "frontend",
+      "color": "#10b981"
+    },
+    {
+      "id": "tag-infra",
+      "name": "infra",
+      "color": "#6366f1"
+    },
+    {
+      "id": "tag-habito",
+      "name": "hábito",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "tag-reuniao",
+      "name": "reunião",
+      "color": "#ec4899"
+    },
+    {
+      "id": "tag-estudo",
+      "name": "estudo",
+      "color": "#8b5cf6"
+    }
+  ],
+  "emailConfig": {
+    "enabled": true,
+    "targetEmail": "sir.murilos@gmail.com",
+    "dailyDigestTime": "08:00",
+    "eventReminderMinutes": 30,
+    "sendOnBlocked": true,
+    "lastDigestSent": "2026-11-02"
+  },
+  "emailLogs": [
+    {
+      "id": "email-mvzl526s",
+      "type": "daily_digest",
+      "recipient": "sir.murilos@gmail.com",
+      "subject": "[TaskFlow] Resumo Matinal - segunda-feira, 2 de novembro de 2026",
+      "summary": "1 concluídas ontem • 2 eventos e 6 tarefas de fluxo hoje",
+      "contentHtml": "\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <style>\n    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 24px; line-height: 1.5; }\n    .container { max-width: 620px; margin: 0 auto; background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 32px; }\n    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #58a6ff; font-size: 20px; margin-bottom: 24px; }\n    .header-title { font-size: 22px; color: #f0f6fc; margin: 0 0 6px 0; font-weight: 600; }\n    .header-sub { font-size: 14px; color: #8b949e; margin-bottom: 28px; }\n    .section-title { font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: #58a6ff; font-weight: 700; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin-top: 24px; margin-bottom: 14px; }\n    .task-item { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; font-size: 14px; }\n    .badge-event { background-color: #388bfd26; color: #58a6ff; border: 1px solid #388bfd4d; border-radius: 4px; padding: 2px 6px; font-size: 12px; font-weight: 600; font-family: monospace; }\n    .badge-done { color: #3fb950; font-weight: bold; }\n    .badge-priority { font-size: 11px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; font-weight: bold; }\n    .p-urgente { background: #f8514926; color: #ff7b72; }\n    .p-alta { background: #d2992226; color: #d29922; }\n    .goal-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }\n    .progress-bar { background-color: #21262d; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 8px; }\n    .progress-fill { background-color: #238636; height: 100%; border-radius: 3px; }\n    .footer { text-align: center; font-size: 12px; color: #6e7681; margin-top: 36px; border-top: 1px solid #21262d; padding-top: 16px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"brand\">⚡ TaskFlow • Bullet Journal & Agile Flow</div>\n    <h1 class=\"header-title\">Bom dia! Seu briefing diário está pronto.</h1>\n    <div class=\"header-sub\">segunda-feira, 2 de novembro de 2026 • Destinatário: <strong>sir.murilos@gmail.com</strong></div>\n\n    <!-- Resultados de Ontem -->\n    <div class=\"section-title\">🏆 Vitórias de Ontem (1)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-done\">✓</span>\n        <span style=\"color: #e6edf3;\">Aporte mensal de investimentos na corretora</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">(Finanças & Liberdade)</span>\n      </div>\n\n    <!-- Eventos do Dia -->\n    <div class=\"section-title\">⏰ Eventos com Horário Marcado (2)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-event\">14:30</span>\n        <strong style=\"color: #f0f6fc;\">Reunião de Alinhamento de Arquitetura & Roadmap</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Carreira & Engenharia</span>\n      </div>\n      <div class=\"task-item\">\n        <span class=\"badge-event\">19:30</span>\n        <strong style=\"color: #f0f6fc;\">Encontro de Jovens & Devocional Comunitário</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Igreja & Espiritualidade</span>\n      </div>\n\n    <!-- Tarefas de Fluxo (Bullet Journal) -->\n    <div class=\"section-title\">🎯 Fluxo de Ações Prioritárias (6)</div>\n    \n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Construir visualização Kanban com 5 colunas ágeis</span>\n        <span class=\"badge-priority p-urgente\">urgente</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Implementar parser do CLI integrado com suporte a --json</span>\n        <span class=\"badge-priority p-alta\">alta</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Revisar cálculo cascata de metas (Semana -> Mês -> Ano)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[revisando]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Treino de corrida: 6km ritmo confortável (Zona 2)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[concluido]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Configurar credenciais de gateway de e-mail de teste</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[bloqueado]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Leitura de 30 páginas do livro \"Designing Data-Intensive Applications\"</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[planejando]</span>\n      </div>\n\n    <!-- Metas Semanais em Andamento -->\n    <div class=\"section-title\">📈 Metas Semanais Ativas (3)</div>\n    \n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Implementar UI modular e terminal integrado do TaskFlow</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fazer 3 treinos de corrida (6km, 8km e 14km no sábado)</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fechar planilha orçamentária do mês e validar reservas</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n\n    <div class=\"footer\">\n      Gerado automaticamente pelo TaskFlow com base nas diretrizes ágeis e de Bullet Journal.<br>\n      Para gerenciar tarefas ou via terminal, acesse o TaskFlow.\n    </div>\n  </div>\n</body>\n</html>\n",
+      "sentAt": "2026-11-02T18:21:26.740Z",
+      "status": "simulado"
+    },
+    {
+      "id": "email-mvzl4cow",
+      "type": "daily_digest",
+      "recipient": "sir.murilos@gmail.com",
+      "subject": "[TaskFlow] Resumo Matinal - segunda-feira, 2 de novembro de 2026",
+      "summary": "1 concluídas ontem • 2 eventos e 6 tarefas de fluxo hoje",
+      "contentHtml": "\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <style>\n    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 24px; line-height: 1.5; }\n    .container { max-width: 620px; margin: 0 auto; background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 32px; }\n    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #58a6ff; font-size: 20px; margin-bottom: 24px; }\n    .header-title { font-size: 22px; color: #f0f6fc; margin: 0 0 6px 0; font-weight: 600; }\n    .header-sub { font-size: 14px; color: #8b949e; margin-bottom: 28px; }\n    .section-title { font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: #58a6ff; font-weight: 700; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin-top: 24px; margin-bottom: 14px; }\n    .task-item { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; font-size: 14px; }\n    .badge-event { background-color: #388bfd26; color: #58a6ff; border: 1px solid #388bfd4d; border-radius: 4px; padding: 2px 6px; font-size: 12px; font-weight: 600; font-family: monospace; }\n    .badge-done { color: #3fb950; font-weight: bold; }\n    .badge-priority { font-size: 11px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; font-weight: bold; }\n    .p-urgente { background: #f8514926; color: #ff7b72; }\n    .p-alta { background: #d2992226; color: #d29922; }\n    .goal-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }\n    .progress-bar { background-color: #21262d; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 8px; }\n    .progress-fill { background-color: #238636; height: 100%; border-radius: 3px; }\n    .footer { text-align: center; font-size: 12px; color: #6e7681; margin-top: 36px; border-top: 1px solid #21262d; padding-top: 16px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"brand\">⚡ TaskFlow • Bullet Journal & Agile Flow</div>\n    <h1 class=\"header-title\">Bom dia! Seu briefing diário está pronto.</h1>\n    <div class=\"header-sub\">segunda-feira, 2 de novembro de 2026 • Destinatário: <strong>sir.murilos@gmail.com</strong></div>\n\n    <!-- Resultados de Ontem -->\n    <div class=\"section-title\">🏆 Vitórias de Ontem (1)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-done\">✓</span>\n        <span style=\"color: #e6edf3;\">Aporte mensal de investimentos na corretora</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">(Finanças & Liberdade)</span>\n      </div>\n\n    <!-- Eventos do Dia -->\n    <div class=\"section-title\">⏰ Eventos com Horário Marcado (2)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-event\">14:30</span>\n        <strong style=\"color: #f0f6fc;\">Reunião de Alinhamento de Arquitetura & Roadmap</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Carreira & Engenharia</span>\n      </div>\n      <div class=\"task-item\">\n        <span class=\"badge-event\">19:30</span>\n        <strong style=\"color: #f0f6fc;\">Encontro de Jovens & Devocional Comunitário</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Igreja & Espiritualidade</span>\n      </div>\n\n    <!-- Tarefas de Fluxo (Bullet Journal) -->\n    <div class=\"section-title\">🎯 Fluxo de Ações Prioritárias (6)</div>\n    \n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Construir visualização Kanban com 5 colunas ágeis</span>\n        <span class=\"badge-priority p-urgente\">urgente</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Implementar parser do CLI integrado com suporte a --json</span>\n        <span class=\"badge-priority p-alta\">alta</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Revisar cálculo cascata de metas (Semana -> Mês -> Ano)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[revisando]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Treino de corrida: 6km ritmo confortável (Zona 2)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[concluido]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Configurar credenciais de gateway de e-mail de teste</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[bloqueado]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Leitura de 30 páginas do livro \"Designing Data-Intensive Applications\"</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[planejando]</span>\n      </div>\n\n    <!-- Metas Semanais em Andamento -->\n    <div class=\"section-title\">📈 Metas Semanais Ativas (3)</div>\n    \n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Implementar UI modular e terminal integrado do TaskFlow</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fazer 3 treinos de corrida (6km, 8km e 14km no sábado)</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fechar planilha orçamentária do mês e validar reservas</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n\n    <div class=\"footer\">\n      Gerado automaticamente pelo TaskFlow com base nas diretrizes ágeis e de Bullet Journal.<br>\n      Para gerenciar tarefas ou via terminal, acesse o TaskFlow.\n    </div>\n  </div>\n</body>\n</html>\n",
+      "sentAt": "2026-11-02T18:20:53.696Z",
+      "status": "simulado"
+    },
+    {
+      "id": "email-mvzkzntr",
+      "type": "daily_digest",
+      "recipient": "sir.murilos@gmail.com",
+      "subject": "[TaskFlow] Resumo Matinal - segunda-feira, 2 de novembro de 2026",
+      "summary": "1 concluídas ontem • 2 eventos e 6 tarefas de fluxo hoje",
+      "contentHtml": "\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <style>\n    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 24px; line-height: 1.5; }\n    .container { max-width: 620px; margin: 0 auto; background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 32px; }\n    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #58a6ff; font-size: 20px; margin-bottom: 24px; }\n    .header-title { font-size: 22px; color: #f0f6fc; margin: 0 0 6px 0; font-weight: 600; }\n    .header-sub { font-size: 14px; color: #8b949e; margin-bottom: 28px; }\n    .section-title { font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: #58a6ff; font-weight: 700; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin-top: 24px; margin-bottom: 14px; }\n    .task-item { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; font-size: 14px; }\n    .badge-event { background-color: #388bfd26; color: #58a6ff; border: 1px solid #388bfd4d; border-radius: 4px; padding: 2px 6px; font-size: 12px; font-weight: 600; font-family: monospace; }\n    .badge-done { color: #3fb950; font-weight: bold; }\n    .badge-priority { font-size: 11px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; font-weight: bold; }\n    .p-urgente { background: #f8514926; color: #ff7b72; }\n    .p-alta { background: #d2992226; color: #d29922; }\n    .goal-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }\n    .progress-bar { background-color: #21262d; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 8px; }\n    .progress-fill { background-color: #238636; height: 100%; border-radius: 3px; }\n    .footer { text-align: center; font-size: 12px; color: #6e7681; margin-top: 36px; border-top: 1px solid #21262d; padding-top: 16px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"brand\">⚡ TaskFlow • Bullet Journal & Agile Flow</div>\n    <h1 class=\"header-title\">Bom dia! Seu briefing diário está pronto.</h1>\n    <div class=\"header-sub\">segunda-feira, 2 de novembro de 2026 • Destinatário: <strong>sir.murilos@gmail.com</strong></div>\n\n    <!-- Resultados de Ontem -->\n    <div class=\"section-title\">🏆 Vitórias de Ontem (1)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-done\">✓</span>\n        <span style=\"color: #e6edf3;\">Aporte mensal de investimentos na corretora</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">(Finanças & Liberdade)</span>\n      </div>\n\n    <!-- Eventos do Dia -->\n    <div class=\"section-title\">⏰ Eventos com Horário Marcado (2)</div>\n    \n      <div class=\"task-item\">\n        <span class=\"badge-event\">14:30</span>\n        <strong style=\"color: #f0f6fc;\">Reunião de Alinhamento de Arquitetura & Roadmap</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Carreira & Engenharia</span>\n      </div>\n      <div class=\"task-item\">\n        <span class=\"badge-event\">19:30</span>\n        <strong style=\"color: #f0f6fc;\">Encontro de Jovens & Devocional Comunitário</strong>\n        <span style=\"color: #8b949e; font-size: 12px;\">• Igreja & Espiritualidade</span>\n      </div>\n\n    <!-- Tarefas de Fluxo (Bullet Journal) -->\n    <div class=\"section-title\">🎯 Fluxo de Ações Prioritárias (6)</div>\n    \n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Construir visualização Kanban com 5 colunas ágeis</span>\n        <span class=\"badge-priority p-urgente\">urgente</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Implementar parser do CLI integrado com suporte a --json</span>\n        <span class=\"badge-priority p-alta\">alta</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[fazendo]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Revisar cálculo cascata de metas (Semana -> Mês -> Ano)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[revisando]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Treino de corrida: 6km ritmo confortável (Zona 2)</span>\n        <span class=\"badge-priority p-media\">media</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[concluido]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Configurar credenciais de gateway de e-mail de teste</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[bloqueado]</span>\n      </div>\n      <div class=\"task-item\">\n        <span style=\"color: #58a6ff;\">●</span>\n        <span style=\"color: #e6edf3;\">Leitura de 30 páginas do livro \"Designing Data-Intensive Applications\"</span>\n        <span class=\"badge-priority p-baixa\">baixa</span>\n        <span style=\"color: #8b949e; font-size: 12px;\">[planejando]</span>\n      </div>\n\n    <!-- Metas Semanais em Andamento -->\n    <div class=\"section-title\">📈 Metas Semanais Ativas (3)</div>\n    \n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Implementar UI modular e terminal integrado do TaskFlow</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fazer 3 treinos de corrida (6km, 8km e 14km no sábado)</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n      <div class=\"goal-box\">\n        <div style=\"display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #f0f6fc;\">\n          <span>Fechar planilha orçamentária do mês e validar reservas</span>\n          <span>50%</span>\n        </div>\n        <div class=\"progress-bar\">\n          <div class=\"progress-fill\" style=\"width: 50%;\"></div>\n        </div>\n      </div>\n\n    <div class=\"footer\">\n      Gerado automaticamente pelo TaskFlow com base nas diretrizes ágeis e de Bullet Journal.<br>\n      Para gerenciar tarefas ou via terminal, acesse o TaskFlow.\n    </div>\n  </div>\n</body>\n</html>\n",
+      "sentAt": "2026-11-02T18:17:14.848Z",
+      "status": "simulado"
+    }
+  ]
+}
