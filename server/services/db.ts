@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { config } from '../config';
 import {
   Task,
@@ -8,6 +7,7 @@ import {
   Tag,
   EmailNotificationConfig,
   EmailLog,
+  User,
 } from '../../src/types';
 import {
   initialTasks,
@@ -17,12 +17,19 @@ import {
   initialEmailConfig,
 } from '../../src/services/mockData';
 
+export interface StoredUser extends User {
+  passwordHash: string;
+  salt: string;
+}
+
 export interface DatabaseSchema {
+  users: StoredUser[];
   tasks: Task[];
   goals: Goal[];
   epics: Epic[];
   tags: Tag[];
-  emailConfig: EmailNotificationConfig;
+  emailConfigs?: Record<string, EmailNotificationConfig>; // Keyed by userId
+  emailConfig: EmailNotificationConfig; // Global default fallback
   emailLogs: EmailLog[];
 }
 
@@ -43,10 +50,12 @@ class DatabaseService {
 
       if (!fs.existsSync(config.dbFilePath)) {
         const initialData: DatabaseSchema = {
+          users: [],
           tasks: initialTasks,
           goals: initialGoals,
           epics: initialEpics,
           tags: initialTags,
+          emailConfigs: {},
           emailConfig: initialEmailConfig,
           emailLogs: [],
         };
@@ -57,20 +66,23 @@ class DatabaseService {
         try {
           const parsed = JSON.parse(raw);
           this.inMemoryData = {
+            users: Array.isArray(parsed.users) ? parsed.users : [],
             tasks: Array.isArray(parsed.tasks) ? parsed.tasks : initialTasks,
             goals: Array.isArray(parsed.goals) ? parsed.goals : initialGoals,
             epics: Array.isArray(parsed.epics) ? parsed.epics : initialEpics,
             tags: Array.isArray(parsed.tags) ? parsed.tags : initialTags,
+            emailConfigs: parsed.emailConfigs || {},
             emailConfig: parsed.emailConfig || initialEmailConfig,
             emailLogs: Array.isArray(parsed.emailLogs) ? parsed.emailLogs : [],
           };
         } catch {
-          // Fallback if corrupt
           const fallbackData: DatabaseSchema = {
+            users: [],
             tasks: initialTasks,
             goals: initialGoals,
             epics: initialEpics,
             tags: initialTags,
+            emailConfigs: {},
             emailConfig: initialEmailConfig,
             emailLogs: [],
           };
@@ -81,10 +93,12 @@ class DatabaseService {
     } catch (err) {
       console.error('[DB] Erro ao inicializar banco de dados:', err);
       this.inMemoryData = {
+        users: [],
         tasks: initialTasks,
         goals: initialGoals,
         epics: initialEpics,
         tags: initialTags,
+        emailConfigs: {},
         emailConfig: initialEmailConfig,
         emailLogs: [],
       };
@@ -121,18 +135,125 @@ class DatabaseService {
     }
   }
 
-  // --- Task Methods ---
-  public getTasks(): Task[] {
-    return this.getData().tasks;
+  // --- User Methods ---
+  public getUsers(): StoredUser[] {
+    return this.getData().users;
   }
 
-  public getTaskById(id: string): Task | undefined {
-    return this.getData().tasks.find((t) => t.id === id);
+  public findUserByEmail(email: string): StoredUser | undefined {
+    const normalized = email.trim().toLowerCase();
+    return this.getData().users.find((u) => u.email.toLowerCase() === normalized);
   }
 
-  public async createTask(taskInput: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
+  public findUserById(id: string): StoredUser | undefined {
+    return this.getData().users.find((u) => u.id === id);
+  }
+
+  public async createUser(
+    name: string,
+    email: string,
+    passwordHash: string,
+    salt: string
+  ): Promise<User> {
     const data = this.getData();
-    // Generate sequential ID based on TF-xxx
+    const userId = `usr_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
+    const storedUser: StoredUser = {
+      id: userId,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      passwordHash,
+      salt,
+      createdAt: now,
+    };
+
+    data.users.push(storedUser);
+
+    // Seed default Epics for new user
+    const userEpics: Epic[] = initialEpics.map((epic) => ({
+      ...epic,
+      id: `epic_${userId.slice(-4)}_${epic.id.replace('epic-', '')}`,
+      userId,
+      createdAt: now.split('T')[0],
+    }));
+    data.epics.push(...userEpics);
+
+    // Seed default Tags for new user
+    const userTags: Tag[] = initialTags.map((tag) => ({
+      ...tag,
+      id: `tag_${userId.slice(-4)}_${tag.name}`,
+      userId,
+    }));
+    data.tags.push(...userTags);
+
+    // Seed default Email Config for new user
+    if (!data.emailConfigs) data.emailConfigs = {};
+    data.emailConfigs[userId] = {
+      ...initialEmailConfig,
+      userId,
+      targetEmail: storedUser.email,
+    };
+
+    // Seed welcoming onboarding tasks
+    const welcomeTasks: Task[] = [
+      {
+        id: `TF-${Math.floor(100 + Math.random() * 800)}`,
+        userId,
+        title: 'Explorar o quadro Kanban e mover seu primeiro card',
+        description: 'Arraste este cartão para "Fazendo" e depois para "Concluído"!',
+        status: 'fazendo',
+        priority: 'alta',
+        date: now.split('T')[0],
+        recurrence: 'none',
+        tags: [userTags[0].id],
+        epicId: userEpics[0].id,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: `TF-${Math.floor(100 + Math.random() * 800)}`,
+        userId,
+        title: 'Abrir o Terminal CLI integrado (Ctrl + ~)',
+        description: 'Pressione Ctrl + ~ ou clique em CLI no topo para rodar comandos como "help" e "task list --json".',
+        status: 'planejando',
+        priority: 'media',
+        date: now.split('T')[0],
+        recurrence: 'none',
+        tags: [userTags[1]?.id || userTags[0].id],
+        epicId: userEpics[0].id,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+    data.tasks.push(...welcomeTasks);
+
+    await this.persist();
+
+    return {
+      id: storedUser.id,
+      name: storedUser.name,
+      email: storedUser.email,
+      createdAt: storedUser.createdAt,
+    };
+  }
+
+  // --- Task Methods (User-Scoped) ---
+  public getTasks(userId?: string): Task[] {
+    const tasks = this.getData().tasks;
+    if (!userId) return tasks;
+    return tasks.filter((t) => !t.userId || t.userId === userId);
+  }
+
+  public getTaskById(id: string, userId?: string): Task | undefined {
+    return this.getData().tasks.find((t) => t.id === id && (!userId || !t.userId || t.userId === userId));
+  }
+
+  public async createTask(
+    userId: string,
+    taskInput: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<Task> {
+    const data = this.getData();
     let nextNum = 101;
     const existingNums = data.tasks
       .map((t) => {
@@ -148,6 +269,7 @@ class DatabaseService {
     const now = new Date().toISOString();
     const newTask: Task = {
       ...taskInput,
+      userId,
       id: `TF-${nextNum}`,
       createdAt: now,
       updatedAt: now,
@@ -158,9 +280,13 @@ class DatabaseService {
     return newTask;
   }
 
-  public async updateTask(id: string, updates: Partial<Task>): Promise<Task | null> {
+  public async updateTask(
+    userId: string,
+    id: string,
+    updates: Partial<Task>
+  ): Promise<Task | null> {
     const data = this.getData();
-    const index = data.tasks.findIndex((t) => t.id === id);
+    const index = data.tasks.findIndex((t) => t.id === id && (!t.userId || t.userId === userId));
     if (index === -1) return null;
 
     const existing = data.tasks[index];
@@ -168,7 +294,8 @@ class DatabaseService {
     const updated: Task = {
       ...existing,
       ...updates,
-      id: existing.id, // Immutable ID
+      userId: existing.userId || userId,
+      id: existing.id,
       createdAt: existing.createdAt,
       updatedAt: now,
       completedAt:
@@ -184,10 +311,10 @@ class DatabaseService {
     return updated;
   }
 
-  public async deleteTask(id: string): Promise<boolean> {
+  public async deleteTask(userId: string, id: string): Promise<boolean> {
     const data = this.getData();
     const initialLength = data.tasks.length;
-    data.tasks = data.tasks.filter((t) => t.id !== id);
+    data.tasks = data.tasks.filter((t) => !(t.id === id && (!t.userId || t.userId === userId)));
     if (data.tasks.length !== initialLength) {
       await this.persist();
       return true;
@@ -195,16 +322,21 @@ class DatabaseService {
     return false;
   }
 
-  public async batchUpdateTasks(ids: string[], updates: Partial<Task>): Promise<Task[]> {
+  public async batchUpdateTasks(
+    userId: string,
+    ids: string[],
+    updates: Partial<Task>
+  ): Promise<Task[]> {
     const data = this.getData();
     const now = new Date().toISOString();
     const updatedTasks: Task[] = [];
 
     data.tasks = data.tasks.map((t) => {
-      if (ids.includes(t.id)) {
+      if (ids.includes(t.id) && (!t.userId || t.userId === userId)) {
         const updated: Task = {
           ...t,
           ...updates,
+          userId: t.userId || userId,
           id: t.id,
           createdAt: t.createdAt,
           updatedAt: now,
@@ -225,10 +357,10 @@ class DatabaseService {
     return updatedTasks;
   }
 
-  public async batchDeleteTasks(ids: string[]): Promise<boolean> {
+  public async batchDeleteTasks(userId: string, ids: string[]): Promise<boolean> {
     const data = this.getData();
     const initialLength = data.tasks.length;
-    data.tasks = data.tasks.filter((t) => !ids.includes(t.id));
+    data.tasks = data.tasks.filter((t) => !(ids.includes(t.id) && (!t.userId || t.userId === userId)));
     if (data.tasks.length !== initialLength) {
       await this.persist();
       return true;
@@ -236,15 +368,21 @@ class DatabaseService {
     return false;
   }
 
-  // --- Goal Methods ---
-  public getGoals(): Goal[] {
-    return this.getData().goals;
+  // --- Goal Methods (User-Scoped) ---
+  public getGoals(userId?: string): Goal[] {
+    const goals = this.getData().goals;
+    if (!userId) return goals;
+    return goals.filter((g) => !g.userId || g.userId === userId);
   }
 
-  public async createGoal(goalInput: Omit<Goal, 'id' | 'createdAt'>): Promise<Goal> {
+  public async createGoal(
+    userId: string,
+    goalInput: Omit<Goal, 'id' | 'createdAt'>
+  ): Promise<Goal> {
     const data = this.getData();
     const newGoal: Goal = {
       ...goalInput,
+      userId,
       id: `goal-${Date.now().toString(36)}`,
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -253,27 +391,34 @@ class DatabaseService {
     return newGoal;
   }
 
-  public async updateGoal(id: string, updates: Partial<Goal>): Promise<Goal | null> {
+  public async updateGoal(
+    userId: string,
+    id: string,
+    updates: Partial<Goal>
+  ): Promise<Goal | null> {
     const data = this.getData();
-    const index = data.goals.findIndex((g) => g.id === id);
+    const index = data.goals.findIndex((g) => g.id === id && (!g.userId || g.userId === userId));
     if (index === -1) return null;
 
     data.goals[index] = {
       ...data.goals[index],
       ...updates,
+      userId: data.goals[index].userId || userId,
       id: data.goals[index].id,
     };
     await this.persist();
     return data.goals[index];
   }
 
-  public async deleteGoal(id: string): Promise<boolean> {
+  public async deleteGoal(userId: string, id: string): Promise<boolean> {
     const data = this.getData();
     const initialLength = data.goals.length;
-    data.goals = data.goals.filter((g) => g.id !== id);
+    data.goals = data.goals.filter((g) => !(g.id === id && (!g.userId || g.userId === userId)));
 
-    // Unlink child tasks gracefully (Constraint: Anti-corrupção da cascata)
-    data.tasks = data.tasks.map((t) => (t.goalId === id ? { ...t, goalId: undefined } : t));
+    // Unlink child tasks gracefully
+    data.tasks = data.tasks.map((t) =>
+      t.goalId === id && (!t.userId || t.userId === userId) ? { ...t, goalId: undefined } : t
+    );
 
     if (data.goals.length !== initialLength) {
       await this.persist();
@@ -282,15 +427,21 @@ class DatabaseService {
     return false;
   }
 
-  // --- Epic Methods ---
-  public getEpics(): Epic[] {
-    return this.getData().epics;
+  // --- Epic Methods (User-Scoped) ---
+  public getEpics(userId?: string): Epic[] {
+    const epics = this.getData().epics;
+    if (!userId) return epics;
+    return epics.filter((e) => !e.userId || e.userId === userId);
   }
 
-  public async createEpic(epicInput: Omit<Epic, 'id' | 'createdAt'>): Promise<Epic> {
+  public async createEpic(
+    userId: string,
+    epicInput: Omit<Epic, 'id' | 'createdAt'>
+  ): Promise<Epic> {
     const data = this.getData();
     const newEpic: Epic = {
       ...epicInput,
+      userId,
       id: `epic-${Date.now().toString(36)}`,
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -299,28 +450,36 @@ class DatabaseService {
     return newEpic;
   }
 
-  public async updateEpic(id: string, updates: Partial<Epic>): Promise<Epic | null> {
+  public async updateEpic(
+    userId: string,
+    id: string,
+    updates: Partial<Epic>
+  ): Promise<Epic | null> {
     const data = this.getData();
-    const index = data.epics.findIndex((e) => e.id === id);
+    const index = data.epics.findIndex((e) => e.id === id && (!e.userId || e.userId === userId));
     if (index === -1) return null;
 
     data.epics[index] = {
       ...data.epics[index],
       ...updates,
+      userId: data.epics[index].userId || userId,
       id: data.epics[index].id,
     };
     await this.persist();
     return data.epics[index];
   }
 
-  public async deleteEpic(id: string): Promise<boolean> {
+  public async deleteEpic(userId: string, id: string): Promise<boolean> {
     const data = this.getData();
     const initialLength = data.epics.length;
-    data.epics = data.epics.filter((e) => e.id !== id);
+    data.epics = data.epics.filter((e) => !(e.id === id && (!e.userId || e.userId === userId)));
 
-    // Unlink tasks & goals linked to this epic
-    data.tasks = data.tasks.map((t) => (t.epicId === id ? { ...t, epicId: undefined } : t));
-    data.goals = data.goals.map((g) => (g.epicId === id ? { ...g, epicId: undefined } : g));
+    data.tasks = data.tasks.map((t) =>
+      t.epicId === id && (!t.userId || t.userId === userId) ? { ...t, epicId: undefined } : t
+    );
+    data.goals = data.goals.map((g) =>
+      g.epicId === id && (!g.userId || g.userId === userId) ? { ...g, epicId: undefined } : g
+    );
 
     if (data.epics.length !== initialLength) {
       await this.persist();
@@ -329,15 +488,18 @@ class DatabaseService {
     return false;
   }
 
-  // --- Tag Methods ---
-  public getTags(): Tag[] {
-    return this.getData().tags;
+  // --- Tag Methods (User-Scoped) ---
+  public getTags(userId?: string): Tag[] {
+    const tags = this.getData().tags;
+    if (!userId) return tags;
+    return tags.filter((t) => !t.userId || t.userId === userId);
   }
 
-  public async createTag(name: string, color: string): Promise<Tag> {
+  public async createTag(userId: string, name: string, color: string): Promise<Tag> {
     const data = this.getData();
     const newTag: Tag = {
       id: `tag-${Date.now().toString(36)}`,
+      userId,
       name,
       color,
     };
@@ -346,16 +508,20 @@ class DatabaseService {
     return newTag;
   }
 
-  public async deleteTag(id: string): Promise<boolean> {
+  public async deleteTag(userId: string, id: string): Promise<boolean> {
     const data = this.getData();
     const initialLength = data.tags.length;
-    data.tags = data.tags.filter((t) => t.id !== id);
+    data.tags = data.tags.filter((t) => !(t.id === id && (!t.userId || t.userId === userId)));
 
-    // Remove tag ID from tasks
-    data.tasks = data.tasks.map((t) => ({
-      ...t,
-      tags: t.tags.filter((tagId) => tagId !== id),
-    }));
+    data.tasks = data.tasks.map((t) => {
+      if (!t.userId || t.userId === userId) {
+        return {
+          ...t,
+          tags: t.tags.filter((tagId) => tagId !== id),
+        };
+      }
+      return t;
+    });
 
     if (data.tags.length !== initialLength) {
       await this.persist();
@@ -364,13 +530,31 @@ class DatabaseService {
     return false;
   }
 
-  // --- Email Config & Logs ---
-  public getEmailConfig(): EmailNotificationConfig {
-    return this.getData().emailConfig;
+  // --- Email Config & Logs (User-Scoped) ---
+  public getEmailConfig(userId?: string): EmailNotificationConfig {
+    const data = this.getData();
+    if (userId && data.emailConfigs && data.emailConfigs[userId]) {
+      return data.emailConfigs[userId];
+    }
+    return data.emailConfig;
   }
 
-  public async updateEmailConfig(updates: Partial<EmailNotificationConfig>): Promise<EmailNotificationConfig> {
+  public async updateEmailConfig(
+    userId: string | undefined,
+    updates: Partial<EmailNotificationConfig>
+  ): Promise<EmailNotificationConfig> {
     const data = this.getData();
+    if (userId) {
+      if (!data.emailConfigs) data.emailConfigs = {};
+      data.emailConfigs[userId] = {
+        ...(data.emailConfigs[userId] || data.emailConfig),
+        ...updates,
+        userId,
+      };
+      await this.persist();
+      return data.emailConfigs[userId];
+    }
+
     data.emailConfig = {
       ...data.emailConfig,
       ...updates,
@@ -379,14 +563,15 @@ class DatabaseService {
     return data.emailConfig;
   }
 
-  public getEmailLogs(): EmailLog[] {
-    return this.getData().emailLogs;
+  public getEmailLogs(userId?: string): EmailLog[] {
+    const logs = this.getData().emailLogs;
+    if (!userId) return logs;
+    return logs.filter((l) => !l.userId || l.userId === userId);
   }
 
   public async addEmailLog(log: EmailLog): Promise<EmailLog> {
     const data = this.getData();
-    data.emailLogs.unshift(log); // Prepend so newest is first
-    // Limit to 100 logs
+    data.emailLogs.unshift(log);
     if (data.emailLogs.length > 100) {
       data.emailLogs = data.emailLogs.slice(0, 100);
     }
@@ -396,4 +581,3 @@ class DatabaseService {
 }
 
 export const db = new DatabaseService();
-

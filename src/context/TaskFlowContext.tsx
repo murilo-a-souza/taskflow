@@ -21,6 +21,7 @@ import {
 import { executeCliCommand } from '../services/cliParser';
 import { generateDailyDigestHtml, generateEventReminderHtml } from '../services/emailService';
 import { api } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface TaskFlowContextType {
   // Data
@@ -110,6 +111,8 @@ const LOCAL_STORAGE_KEYS = {
 };
 
 export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, token } = useAuth();
+
   // Load state from localStorage or initial mock data
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
@@ -218,7 +221,7 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem(LOCAL_STORAGE_KEYS.EMAIL_LOGS, JSON.stringify(emailLogs));
   }, [emailLogs]);
 
-  // Sync with Back-End API on startup
+  // Sync with Back-End API on startup and when user changes
   useEffect(() => {
     let isMounted = true;
     api.getBootstrap()
@@ -238,7 +241,7 @@ export const TaskFlowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [token, user?.id]);
 
   // Keyboard shortcut to toggle terminal (Ctrl + ~ or Ctrl + ')
   useEffect(() => {

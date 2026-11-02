@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.git
+.gitignore
+*.log
+server/data/*.tmp
+.env*
+!.env.example
+

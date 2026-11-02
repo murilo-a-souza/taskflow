@@ -6,28 +6,91 @@ import {
   EmailNotificationConfig,
   EmailLog,
   TaskStatus,
+  User,
+  AuthResponse,
 } from '../types';
 
 const API_BASE = '/api';
+const TOKEN_KEY = 'taskflow_auth_token';
+
+let currentToken: string | null = null;
+try {
+  currentToken = localStorage.getItem(TOKEN_KEY);
+} catch {
+  currentToken = null;
+}
+
+export function setStoredToken(token: string | null) {
+  currentToken = token;
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
+export function getStoredToken(): string | null {
+  return currentToken;
+}
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options.headers || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
+  if (currentToken) {
+    headers['Authorization'] = `Bearer ${currentToken}`;
+  }
+
   const response = await fetch(url, { ...options, headers });
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
 
   if (!response.ok || json.success === false) {
-    throw new Error(json.error || `Erro HTTP ${response.status} em ${endpoint}`);
+    const errorMsg = json.error || `Erro HTTP ${response.status} em ${endpoint}`;
+    if (response.status === 401 && !endpoint.startsWith('/auth/login') && !endpoint.startsWith('/auth/register')) {
+      // Clear token on 401 session expiration
+      setStoredToken(null);
+    }
+    throw new Error(errorMsg);
   }
 
   return json.data !== undefined ? json.data : json;
 }
 
 export const api = {
+  // Authentication
+  async register(name: string, email: string, password: string): Promise<AuthResponse> {
+    const data: AuthResponse = await request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password }),
+    });
+    setStoredToken(data.token);
+    return data;
+  },
+
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const data: AuthResponse = await request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    setStoredToken(data.token);
+    return data;
+  },
+
+  async getMe(): Promise<{ user: User }> {
+    return request('/auth/me');
+  },
+
+  logout(): void {
+    setStoredToken(null);
+  },
+
   // Bootstrap
   async getBootstrap(): Promise<{
     tasks: Task[];
@@ -184,4 +247,3 @@ export const api = {
     });
   },
 };
-

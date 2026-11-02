@@ -7,6 +7,7 @@ dotenv.config();
 export const config = {
   port: Number(process.env.PORT) || 3001,
   appUrl: process.env.APP_URL || 'http://localhost:3000',
+  jwtSecret: process.env.JWT_SECRET || 'taskflow-jwt-secure-secret-key-2026',
   emailFrom: process.env.EMAIL_FROM || 'TaskFlow <notifications@taskflow.dev>',
   resendApiKey: process.env.RESEND_API_KEY || '',
   geminiApiKey: process.env.GEMINI_API_KEY || '',

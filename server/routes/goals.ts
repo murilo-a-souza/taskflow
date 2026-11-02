@@ -1,13 +1,15 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../services/db';
 import { GoalType } from '../../src/types';
+import { optionalAuth, AuthenticatedRequest } from '../middlewares/auth';
 
 export const goalsRouter = Router();
 
 // GET /api/goals
-goalsRouter.get('/', (req, res) => {
+goalsRouter.get('/', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
   try {
-    let goals = db.getGoals();
+    const userId = req.user?.userId;
+    let goals = db.getGoals(userId);
     const { type, epicId, parentId } = req.query;
 
     if (type) goals = goals.filter((g) => g.type === type);
@@ -21,8 +23,9 @@ goalsRouter.get('/', (req, res) => {
 });
 
 // POST /api/goals
-goalsRouter.post('/', async (req, res) => {
+goalsRouter.post('/', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const userId = req.user?.userId || 'default_user';
     const { title, description, type, parentId, epicId, period, targetValue, currentValue, unit, status } = req.body;
 
     if (!title || typeof title !== 'string' || !title.trim()) {
@@ -32,7 +35,7 @@ goalsRouter.post('/', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Tipo de meta inválido (annual, monthly, weekly)' });
     }
 
-    const newGoal = await db.createGoal({
+    const newGoal = await db.createGoal(userId, {
       title: title.trim(),
       description: description?.trim() || undefined,
       type: type as GoalType,
@@ -52,9 +55,10 @@ goalsRouter.post('/', async (req, res) => {
 });
 
 // PUT /api/goals/:id
-goalsRouter.put('/:id', async (req, res) => {
+goalsRouter.put('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const updated = await db.updateGoal(req.params.id, req.body);
+    const userId = req.user?.userId || 'default_user';
+    const updated = await db.updateGoal(userId, req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Meta não encontrada' });
     }
@@ -65,9 +69,10 @@ goalsRouter.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/goals/:id
-goalsRouter.delete('/:id', async (req, res) => {
+goalsRouter.delete('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const deleted = await db.deleteGoal(req.params.id);
+    const userId = req.user?.userId || 'default_user';
+    const deleted = await db.deleteGoal(userId, req.params.id);
     if (!deleted) {
       return res.status(404).json({ success: false, error: 'Meta não encontrada' });
     }
@@ -76,4 +81,3 @@ goalsRouter.delete('/:id', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-

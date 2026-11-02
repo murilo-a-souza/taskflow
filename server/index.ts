@@ -8,6 +8,7 @@ import { goalsRouter } from './routes/goals';
 import { epicsRouter } from './routes/epics';
 import { tagsRouter } from './routes/tags';
 import { emailRouter } from './routes/email';
+import { authRouter } from './routes/auth';
 import { scheduler } from './services/scheduler';
 
 const app = express();
@@ -48,6 +49,7 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/bootstrap', bootstrapRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/goals', goalsRouter);

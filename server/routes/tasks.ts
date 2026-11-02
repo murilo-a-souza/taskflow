@@ -1,14 +1,16 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../services/db';
 import { emailService } from '../services/emailService';
 import { TaskStatus, Priority, Recurrence } from '../../src/types';
+import { optionalAuth, AuthenticatedRequest } from '../middlewares/auth';
 
 export const tasksRouter = Router();
 
 // GET /api/tasks
-tasksRouter.get('/', (req, res) => {
+tasksRouter.get('/', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
   try {
-    let tasks = db.getTasks();
+    const userId = req.user?.userId;
+    let tasks = db.getTasks(userId);
     const { status, priority, epicId, goalId, date, type } = req.query;
 
     if (status) tasks = tasks.filter((t) => t.status === status);
@@ -26,8 +28,9 @@ tasksRouter.get('/', (req, res) => {
 });
 
 // GET /api/tasks/:id
-tasksRouter.get('/:id', (req, res) => {
-  const task = db.getTaskById(req.params.id);
+tasksRouter.get('/:id', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user?.userId;
+  const task = db.getTaskById(req.params.id, userId);
   if (!task) {
     return res.status(404).json({ success: false, error: 'Tarefa não encontrada' });
   }
@@ -35,15 +38,16 @@ tasksRouter.get('/:id', (req, res) => {
 });
 
 // POST /api/tasks
-tasksRouter.post('/', async (req, res) => {
+tasksRouter.post('/', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const userId = req.user?.userId || 'default_user';
     const { title, description, status, priority, date, time, recurrence, tags, epicId, goalId, blockedReason } = req.body;
 
     if (!title || typeof title !== 'string' || !title.trim()) {
       return res.status(400).json({ success: false, error: 'Título é obrigatório' });
     }
 
-    const newTask = await db.createTask({
+    const newTask = await db.createTask(userId, {
       title: title.trim(),
       description: description?.trim() || undefined,
       status: (status as TaskStatus) || 'planejando',
@@ -57,7 +61,6 @@ tasksRouter.post('/', async (req, res) => {
       blockedReason: status === 'bloqueado' ? blockedReason : undefined,
     });
 
-    // If created directly as blocked, send alert
     if (newTask.status === 'bloqueado' && newTask.blockedReason) {
       emailService.sendBlockedAlert(newTask).catch(() => {});
     }
@@ -69,9 +72,10 @@ tasksRouter.post('/', async (req, res) => {
 });
 
 // PUT /api/tasks/:id
-tasksRouter.put('/:id', async (req, res) => {
+tasksRouter.put('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const updated = await db.updateTask(req.params.id, req.body);
+    const userId = req.user?.userId || 'default_user';
+    const updated = await db.updateTask(userId, req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Tarefa não encontrada' });
     }
@@ -87,8 +91,9 @@ tasksRouter.put('/:id', async (req, res) => {
 });
 
 // PATCH /api/tasks/:id/status
-tasksRouter.patch('/:id/status', async (req, res) => {
+tasksRouter.patch('/:id/status', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const userId = req.user?.userId || 'default_user';
     const { status, blockedReason } = req.body;
     if (!status) {
       return res.status(400).json({ success: false, error: 'Status é obrigatório' });
@@ -104,7 +109,7 @@ tasksRouter.patch('/:id/status', async (req, res) => {
       updates.blockedReason = undefined;
     }
 
-    const updated = await db.updateTask(req.params.id, updates);
+    const updated = await db.updateTask(userId, req.params.id, updates);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Tarefa não encontrada' });
     }
@@ -120,20 +125,21 @@ tasksRouter.patch('/:id/status', async (req, res) => {
 });
 
 // POST /api/tasks/batch
-tasksRouter.post('/batch', async (req, res) => {
+tasksRouter.post('/batch', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const userId = req.user?.userId || 'default_user';
     const { action, ids, updates } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ success: false, error: 'Array de IDs é obrigatório' });
     }
 
     if (action === 'delete') {
-      const deleted = await db.batchDeleteTasks(ids);
+      const deleted = await db.batchDeleteTasks(userId, ids);
       return res.json({ success: true, deletedCount: ids.length, successStatus: deleted });
     }
 
     if (action === 'update' && updates) {
-      const updatedTasks = await db.batchUpdateTasks(ids, updates);
+      const updatedTasks = await db.batchUpdateTasks(userId, ids, updates);
       return res.json({ success: true, count: updatedTasks.length, data: updatedTasks });
     }
 
@@ -144,9 +150,10 @@ tasksRouter.post('/batch', async (req, res) => {
 });
 
 // DELETE /api/tasks/:id
-tasksRouter.delete('/:id', async (req, res) => {
+tasksRouter.delete('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const deleted = await db.deleteTask(req.params.id);
+    const userId = req.user?.userId || 'default_user';
+    const deleted = await db.deleteTask(userId, req.params.id);
     if (!deleted) {
       return res.status(404).json({ success: false, error: 'Tarefa não encontrada' });
     }
@@ -155,4 +162,3 @@ tasksRouter.delete('/:id', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-

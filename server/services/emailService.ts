@@ -1,6 +1,6 @@
 import { config } from '../config';
 import { db } from './db';
-import { Task, Goal, Epic, EmailLog } from '../../src/types';
+import { Task, EmailLog } from '../../src/types';
 import { generateDailyDigestHtml, generateEventReminderHtml } from '../../src/services/emailService';
 
 export class EmailService {
@@ -12,7 +12,8 @@ export class EmailService {
     recipient: string,
     subject: string,
     summary: string,
-    html: string
+    html: string,
+    userId?: string
   ): Promise<EmailLog> {
     const logId = `email-${Date.now().toString(36)}`;
     let status: 'simulado' | 'enviado' = 'simulado';
@@ -49,6 +50,7 @@ export class EmailService {
 
     const emailLog: EmailLog = {
       id: logId,
+      userId,
       type,
       recipient,
       subject,
@@ -65,44 +67,43 @@ export class EmailService {
   /**
    * Dispara o briefing matinal consolidado
    */
-  public async sendDailyDigest(overrideRecipient?: string): Promise<EmailLog> {
-    const data = db.getData();
-    const recipient = overrideRecipient || data.emailConfig.targetEmail || 'usuario@taskflow.dev';
+  public async sendDailyDigest(overrideRecipient?: string, userId?: string): Promise<EmailLog> {
+    const emailConfig = db.getEmailConfig(userId);
+    const recipient = overrideRecipient || emailConfig.targetEmail || 'usuario@taskflow.dev';
 
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
 
-    // Compute yesterday in YYYY-MM-DD
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    // Tasks completed yesterday or on previous cycle
-    const yesterdayTasks = data.tasks.filter((t) => {
+    const tasks = db.getTasks(userId);
+    const goals = db.getGoals(userId);
+    const epics = db.getEpics(userId);
+
+    const yesterdayTasks = tasks.filter((t) => {
       if (t.status !== 'concluido') return false;
       if (t.completedAt && t.completedAt.startsWith(yesterdayStr)) return true;
       if (t.date === yesterdayStr) return true;
       return false;
     });
 
-    // Today's tasks (events + flow)
-    const todayTasks = data.tasks.filter((t) => t.date === todayStr);
-
-    // Active weekly goals
-    const activeWeeklyGoals = data.goals.filter((g) => g.type === 'weekly' && g.status === 'active');
+    const todayTasks = tasks.filter((t) => t.date === todayStr);
+    const activeWeeklyGoals = goals.filter((g) => g.type === 'weekly' && g.status === 'active');
 
     const { subject, summary, html } = generateDailyDigestHtml(
       recipient,
       yesterdayTasks,
       todayTasks,
       activeWeeklyGoals,
-      data.epics
+      epics
     );
 
-    const log = await this.dispatch('daily_digest', recipient, subject, summary, html);
+    const log = await this.dispatch('daily_digest', recipient, subject, summary, html, userId);
 
     // Update lastDigestSent in config
-    await db.updateEmailConfig({ lastDigestSent: todayStr });
+    await db.updateEmailConfig(userId, { lastDigestSent: todayStr });
 
     return log;
   }
@@ -110,25 +111,30 @@ export class EmailService {
   /**
    * Dispara lembrete de 30 minutos para um evento com hora marcada
    */
-  public async sendEventReminder(task: Task): Promise<EmailLog | null> {
-    const data = db.getData();
-    const recipient = data.emailConfig.targetEmail || 'usuario@taskflow.dev';
-    const epic = data.epics.find((e) => e.id === task.epicId);
+  public async sendEventReminder(task: Task, userId?: string): Promise<EmailLog | null> {
+    const effectiveUserId = userId || task.userId;
+    const emailConfig = db.getEmailConfig(effectiveUserId);
+    const recipient = emailConfig.targetEmail || 'usuario@taskflow.dev';
+
+    const epics = db.getEpics(effectiveUserId);
+    const epic = epics.find((e) => e.id === task.epicId);
     const epicName = epic?.title || 'Geral';
 
     const { subject, summary, html } = generateEventReminderHtml(recipient, task, epicName);
-    return this.dispatch('event_reminder', recipient, subject, summary, html);
+    return this.dispatch('event_reminder', recipient, subject, summary, html, effectiveUserId);
   }
 
   /**
    * Dispara alerta de tarefa bloqueada
    */
-  public async sendBlockedAlert(task: Task): Promise<EmailLog | null> {
-    const data = db.getData();
-    if (!data.emailConfig.sendOnBlocked) return null;
+  public async sendBlockedAlert(task: Task, userId?: string): Promise<EmailLog | null> {
+    const effectiveUserId = userId || task.userId;
+    const emailConfig = db.getEmailConfig(effectiveUserId);
+    if (!emailConfig.sendOnBlocked) return null;
 
-    const recipient = data.emailConfig.targetEmail || 'usuario@taskflow.dev';
-    const epic = data.epics.find((e) => e.id === task.epicId);
+    const recipient = emailConfig.targetEmail || 'usuario@taskflow.dev';
+    const epics = db.getEpics(effectiveUserId);
+    const epic = epics.find((e) => e.id === task.epicId);
     const epicName = epic?.title || 'Geral';
 
     const subject = `[TaskFlow] Alerta: Tarefa Bloqueada "${task.title}"`;
@@ -153,9 +159,8 @@ export class EmailService {
 </html>
 `;
 
-    return this.dispatch('blocked_alert', recipient, subject, summary, html);
+    return this.dispatch('blocked_alert', recipient, subject, summary, html, effectiveUserId);
   }
 }
 
 export const emailService = new EmailService();
-

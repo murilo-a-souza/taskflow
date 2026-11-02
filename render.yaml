@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: taskflow
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: TaskFlow <notifications@taskflow.dev>
+
